@@ -1,7 +1,7 @@
 import boto3
 dynamodb = boto3.resource('dynamodb')
-def createTable(conn,table_name):
-
+def createTable(table_name):
+    conn = boto3.resource('dynamodb', region_name='us-east-2')
     table1 = conn.create_table(
     TableName=table_name,
     KeySchema=[
@@ -21,9 +21,13 @@ def createTable(conn,table_name):
 )
 
     table1.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+    assert table1.table_status == 'ACTIVE'
 
-def addRow(conn,emp_id, full_Name, age, table_name):
+    return table1
 
+
+def addRow(emp_id, full_Name, age, table_name):
+    conn = boto3.resource('dynamodb', region_name='us-east-2')
     table1 = conn.Table(table_name)
     return table1.put_item(
         Item={
@@ -33,8 +37,8 @@ def addRow(conn,emp_id, full_Name, age, table_name):
         }
     )
 
-def retrieveRow(conn, emp_id, table_name):
-
+def retrieveRow(emp_id, table_name):
+    conn = boto3.resource('dynamodb', region_name='us-east-2')
     table1 = conn.Table(table_name)
     response = table1.get_item(
         Key= {
@@ -45,7 +49,8 @@ def retrieveRow(conn, emp_id, table_name):
     return (response['Item'])
 
 
-def updateAge(conn,emp_id, newAge, table_name):
+def updateAge(emp_id, newAge, table_name):
+     conn = boto3.resource('dynamodb', region_name='us-east-2')
      table1 = conn.Table(table_name)
      return table1.update_item(
             Key={
@@ -57,10 +62,14 @@ def updateAge(conn,emp_id, newAge, table_name):
             }
         )
 
-def deleteRow(conn,emp_id, table_name):
-
-    conn.Table(table_name).delete_item(
+def deleteRow(emp_id, table_name):
+    conn = boto3.resource('dynamodb', region_name='us-east-2')
+    return conn.Table(table_name).delete_item(
             Key={
                 'emp_id': emp_id,
             }
         )
+"""
+conn = boto3.resource('dynamodb', region_name='us-east-2')
+
+print(retrieveRow(conn, 'E105', 'employees'))"""
